@@ -1,0 +1,20 @@
+{
+  "name": "meal-booking-system-api",
+  "version": "1.0.0",
+  "description": "Meal Booking system api in node.js and mssql",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "body-parser": "^1.20.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "jsonwebtoken": "^8.5.1",
+    "mssql": "^8.1.2"
+  }
+}
