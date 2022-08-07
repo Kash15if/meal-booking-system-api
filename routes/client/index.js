@@ -110,4 +110,20 @@ router.post("/login", async (req, res) => {
   }
 });
 
+// ------------------- book meal api-------------------------------
+//update
+router.put("/meal", async (req, res) => {});
+
+// -------------------  Dashboard api-------------------------------
+//get
+router.get("/dashboard", async (req, res) => {});
+
+// -------------------  My all meals api-------------------------------
+//get
+router.get("/mymeals", async (req, res) => {});
+
+// -------------------  create conflicts api-------------------------------
+//post
+router.post("/conflicts", async (req, res) => {});
+
 module.exports = router;

@@ -64,4 +64,41 @@ router.post("/login", async (req, res) => {
     res.send("Internal server error");
   }
 });
+
+// ------------------- manage menu api-------------------------------
+//read
+router.get("/menu", async (req, res) => {});
+//add
+router.post("/menu", async (req, res) => {});
+//update
+router.put("/menu", async (req, res) => {});
+//delete
+router.delete("/menu", async (req, res) => {});
+
+// ------------------- manage user api-------------------------------
+//read
+router.get("/user", async (req, res) => {});
+//add
+router.post("/user", async (req, res) => {});
+//update
+router.put("/user", async (req, res) => {});
+//delete
+router.delete("/user", async (req, res) => {});
+
+// --------------------Dashboard Api--------------------
+//get only
+router.get("/dashboard", async (req, res) => {});
+
+// --------------------All Meals Api--------------------
+//get only
+router.get("/allmeals", async (req, res) => {});
+
+// ------------------- resolve conflict api-------------------------------
+//read
+router.get("/conflict", async (req, res) => {});
+//update
+router.put("/conflict", async (req, res) => {});
+//delete
+router.delete("/conflict", async (req, res) => {});
+
 module.exports = router;
