@@ -85,8 +85,19 @@ router.put("/user", async (req, res) => {});
 //delete
 router.delete("/user", async (req, res) => {});
 
+// ------------------- Daily Expense Record api-------------------------------
+//read
+router.get("/expense", async (req, res) => {});
+//add
+router.post("/expense", async (req, res) => {});
+//update
+router.put("/expense", async (req, res) => {});
+//delete
+router.delete("/expense", async (req, res) => {});
+
 // --------------------Dashboard Api--------------------
 //get only
+//query->
 router.get("/dashboard", async (req, res) => {});
 
 // --------------------All Meals Api--------------------
