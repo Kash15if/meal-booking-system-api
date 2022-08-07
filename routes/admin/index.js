@@ -8,6 +8,11 @@ var jwt = require("jsonwebtoken");
 const sql = require("mssql");
 
 //importing db-connection query
-const pool = require("../models/dbCon"); //importing db-pool for query
+const pool = require("../../models/dbCon"); //importing db-pool for query
+
+router.get("/", async (req, res) => {
+  const out = await pool.query("SELECT [Date] ,[Time] ,[Menu] FROM [Menu]");
+  res.send(out.recordset);
+});
 
 module.exports = router;
