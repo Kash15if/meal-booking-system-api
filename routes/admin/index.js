@@ -102,9 +102,103 @@ router.get("/menu", async (req, res) => {
   }
 });
 //add
-router.post("/menu", async (req, res) => {});
+router.post("/menu", async (req, res) => {
+  let userCreds = req.body.user;
+
+  try {
+    let dbData = await pool
+      .request()
+      .input("user1", sql.Int, userCreds.user)
+      .query(
+        "SELECT [admin] ,[password] ,[name] FROM [admins] where [admin] = @user1"
+      );
+
+    let foundUser = dbData.recordset[0];
+
+    if (foundUser) {
+      let submittedPass = userCreds.password;
+      let storedPass = foundUser.pass;
+
+      // const passwordMatch = await bcrypt.compare(submittedPass, storedPass);
+
+      if (submittedPass === storedPass) {
+        let admin = foundUser.admin;
+        let name = foundUser.name;
+        var token = jwt.sign({ admin }, process.env.ADMIN_KEY);
+
+        res.status(200);
+        res.send({
+          auth: true,
+          token: token,
+          admin: admin,
+          name: name,
+        });
+      } else {
+        res.status(404);
+        res.send("Wrong Password, Type correct password and login again");
+      }
+    } else {
+      // let fakePass = `$2b$$10$ifgfgfgfgfgfgfggfgfgfggggfgfgfga`;
+      // await bcrypt.compare(req.body.password, fakePass);
+
+      res.status(404);
+      res.send("No Such user exists");
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(405);
+    res.send("Internal server error");
+  }
+});
 //update
-router.put("/menu", async (req, res) => {});
+router.put("/menu", async (req, res) => {
+  let userCreds = req.body.user;
+
+  try {
+    let dbData = await pool
+      .request()
+      .input("user1", sql.Int, userCreds.user)
+      .query(
+        "SELECT [admin] ,[password] ,[name] FROM [admins] where [admin] = @user1"
+      );
+
+    let foundUser = dbData.recordset[0];
+
+    if (foundUser) {
+      let submittedPass = userCreds.password;
+      let storedPass = foundUser.pass;
+
+      // const passwordMatch = await bcrypt.compare(submittedPass, storedPass);
+
+      if (submittedPass === storedPass) {
+        let admin = foundUser.admin;
+        let name = foundUser.name;
+        var token = jwt.sign({ admin }, process.env.ADMIN_KEY);
+
+        res.status(200);
+        res.send({
+          auth: true,
+          token: token,
+          admin: admin,
+          name: name,
+        });
+      } else {
+        res.status(404);
+        res.send("Wrong Password, Type correct password and login again");
+      }
+    } else {
+      // let fakePass = `$2b$$10$ifgfgfgfgfgfgfggfgfgfggggfgfgfga`;
+      // await bcrypt.compare(req.body.password, fakePass);
+
+      res.status(404);
+      res.send("No Such user exists");
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(405);
+    res.send("Internal server error");
+  }
+});
 //delete
 router.delete("/menu", async (req, res) => {});
 
@@ -138,11 +232,152 @@ router.get("/user", async (req, res) => {
   }
 });
 //add
-router.post("/user", async (req, res) => {});
+router.post("/user", async (req, res) => {
+  let userCreds = req.body.user;
+
+  try {
+    let dbData = await pool
+      .request()
+      .input("user1", sql.Int, userCreds.user)
+      .query(
+        "SELECT [admin] ,[password] ,[name] FROM [admins] where [admin] = @user1"
+      );
+
+    let foundUser = dbData.recordset[0];
+
+    if (foundUser) {
+      let submittedPass = userCreds.password;
+      let storedPass = foundUser.pass;
+
+      // const passwordMatch = await bcrypt.compare(submittedPass, storedPass);
+
+      if (submittedPass === storedPass) {
+        let admin = foundUser.admin;
+        let name = foundUser.name;
+        var token = jwt.sign({ admin }, process.env.ADMIN_KEY);
+
+        res.status(200);
+        res.send({
+          auth: true,
+          token: token,
+          admin: admin,
+          name: name,
+        });
+      } else {
+        res.status(404);
+        res.send("Wrong Password, Type correct password and login again");
+      }
+    } else {
+      // let fakePass = `$2b$$10$ifgfgfgfgfgfgfggfgfgfggggfgfgfga`;
+      // await bcrypt.compare(req.body.password, fakePass);
+
+      res.status(404);
+      res.send("No Such user exists");
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(405);
+    res.send("Internal server error");
+  }
+});
 //update
-router.put("/user", async (req, res) => {});
+router.put("/user", async (req, res) => {
+  let userCreds = req.body.user;
+
+  try {
+    let dbData = await pool
+      .request()
+      .input("user1", sql.Int, userCreds.user)
+      .query(
+        "SELECT [admin] ,[password] ,[name] FROM [admins] where [admin] = @user1"
+      );
+
+    let foundUser = dbData.recordset[0];
+
+    if (foundUser) {
+      let submittedPass = userCreds.password;
+      let storedPass = foundUser.pass;
+
+      // const passwordMatch = await bcrypt.compare(submittedPass, storedPass);
+
+      if (submittedPass === storedPass) {
+        let admin = foundUser.admin;
+        let name = foundUser.name;
+        var token = jwt.sign({ admin }, process.env.ADMIN_KEY);
+
+        res.status(200);
+        res.send({
+          auth: true,
+          token: token,
+          admin: admin,
+          name: name,
+        });
+      } else {
+        res.status(404);
+        res.send("Wrong Password, Type correct password and login again");
+      }
+    } else {
+      // let fakePass = `$2b$$10$ifgfgfgfgfgfgfggfgfgfggggfgfgfga`;
+      // await bcrypt.compare(req.body.password, fakePass);
+
+      res.status(404);
+      res.send("No Such user exists");
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(405);
+    res.send("Internal server error");
+  }
+});
 //delete
-router.delete("/user", async (req, res) => {});
+router.delete("/user", async (req, res) => {
+  let userCreds = req.body.user;
+
+  try {
+    let dbData = await pool
+      .request()
+      .input("user1", sql.Int, userCreds.user)
+      .query(
+        "SELECT [admin] ,[password] ,[name] FROM [admins] where [admin] = @user1"
+      );
+
+    let foundUser = dbData.recordset[0];
+
+    if (foundUser) {
+      let submittedPass = userCreds.password;
+      let storedPass = foundUser.pass;
+
+      // const passwordMatch = await bcrypt.compare(submittedPass, storedPass);
+
+      if (submittedPass === storedPass) {
+        let admin = foundUser.admin;
+        let name = foundUser.name;
+        var token = jwt.sign({ admin }, process.env.ADMIN_KEY);
+
+        res.status(200);
+        res.send({
+          auth: true,
+          token: token,
+          admin: admin,
+          name: name,
+        });
+      } else {
+        res.status(404);
+        res.send("Wrong Password, Type correct password and login again");
+      }
+    } else {
+      // let fakePass = `$2b$$10$ifgfgfgfgfgfgfggfgfgfggggfgfgfga`;
+      // await bcrypt.compare(req.body.password, fakePass);
+
+      res.status(404);
+      res.send("No Such user exists");
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(405);
+    res.send("Internal server error");
+  }
+});
 
 // ------------------- Daily Expense Record api-------------------------------
 //read
@@ -249,10 +484,151 @@ router.get("/allmeals", async (req, res) => {
 
 // ------------------- resolve conflict api-------------------------------
 //read
-router.get("/conflict", async (req, res) => {});
+router.get("/conflict", async (req, res) => {
+  let userCreds = req.body.user;
+
+  try {
+    let dbData = await pool
+      .request()
+      .input("user1", sql.Int, userCreds.user)
+      .query(
+        "SELECT [admin] ,[password] ,[name] FROM [admins] where [admin] = @user1"
+      );
+
+    let foundUser = dbData.recordset[0];
+
+    if (foundUser) {
+      let submittedPass = userCreds.password;
+      let storedPass = foundUser.pass;
+
+      // const passwordMatch = await bcrypt.compare(submittedPass, storedPass);
+
+      if (submittedPass === storedPass) {
+        let admin = foundUser.admin;
+        let name = foundUser.name;
+        var token = jwt.sign({ admin }, process.env.ADMIN_KEY);
+
+        res.status(200);
+        res.send({
+          auth: true,
+          token: token,
+          admin: admin,
+          name: name,
+        });
+      } else {
+        res.status(404);
+        res.send("Wrong Password, Type correct password and login again");
+      }
+    } else {
+      // let fakePass = `$2b$$10$ifgfgfgfgfgfgfggfgfgfggggfgfgfga`;
+      // await bcrypt.compare(req.body.password, fakePass);
+
+      res.status(404);
+      res.send("No Such user exists");
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(405);
+    res.send("Internal server error");
+  }
+});
 //update
-router.put("/conflict", async (req, res) => {});
+router.put("/conflict", async (req, res) => {
+  let userCreds = req.body.user;
+
+  try {
+    let dbData = await pool
+      .request()
+      .input("user1", sql.Int, userCreds.user)
+      .query(
+        "SELECT [admin] ,[password] ,[name] FROM [admins] where [admin] = @user1"
+      );
+
+    let foundUser = dbData.recordset[0];
+
+    if (foundUser) {
+      let submittedPass = userCreds.password;
+      let storedPass = foundUser.pass;
+
+      // const passwordMatch = await bcrypt.compare(submittedPass, storedPass);
+
+      if (submittedPass === storedPass) {
+        let admin = foundUser.admin;
+        let name = foundUser.name;
+        var token = jwt.sign({ admin }, process.env.ADMIN_KEY);
+
+        res.status(200);
+        res.send({
+          auth: true,
+          token: token,
+          admin: admin,
+          name: name,
+        });
+      } else {
+        res.status(404);
+        res.send("Wrong Password, Type correct password and login again");
+      }
+    } else {
+      // let fakePass = `$2b$$10$ifgfgfgfgfgfgfggfgfgfggggfgfgfga`;
+      // await bcrypt.compare(req.body.password, fakePass);
+
+      res.status(404);
+      res.send("No Such user exists");
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(405);
+    res.send("Internal server error");
+  }
+});
 //delete
-router.delete("/conflict", async (req, res) => {});
+router.delete("/conflict", async (req, res) => {
+  let userCreds = req.body.user;
+
+  try {
+    let dbData = await pool
+      .request()
+      .input("user1", sql.Int, userCreds.user)
+      .query(
+        "SELECT [admin] ,[password] ,[name] FROM [admins] where [admin] = @user1"
+      );
+
+    let foundUser = dbData.recordset[0];
+
+    if (foundUser) {
+      let submittedPass = userCreds.password;
+      let storedPass = foundUser.pass;
+
+      // const passwordMatch = await bcrypt.compare(submittedPass, storedPass);
+
+      if (submittedPass === storedPass) {
+        let admin = foundUser.admin;
+        let name = foundUser.name;
+        var token = jwt.sign({ admin }, process.env.ADMIN_KEY);
+
+        res.status(200);
+        res.send({
+          auth: true,
+          token: token,
+          admin: admin,
+          name: name,
+        });
+      } else {
+        res.status(404);
+        res.send("Wrong Password, Type correct password and login again");
+      }
+    } else {
+      // let fakePass = `$2b$$10$ifgfgfgfgfgfgfggfgfgfggggfgfgfga`;
+      // await bcrypt.compare(req.body.password, fakePass);
+
+      res.status(404);
+      res.send("No Such user exists");
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(405);
+    res.send("Internal server error");
+  }
+});
 
 module.exports = router;
