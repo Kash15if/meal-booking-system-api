@@ -19,7 +19,13 @@ router.get("/test", async (req, res) => {
   res.send(out.recordsets);
 });
 
-//admin login
+// ------------------------------------------------------------------------------------------------------
+//
+//
+//
+//
+
+//----------------------------------------------admin login----------------------------------------------
 router.post("/login", async (req, res) => {
   let userCreds = req.body.user;
 
@@ -69,7 +75,13 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// ------------------- manage menu api-------------------------------
+// ------------------------------------------------------------------------------------------------------
+//
+//
+//
+//
+
+// ----------------------------------------------- manage menu api------------------------------------------
 //read
 router.get("/menu", async (req, res) => {
   const jwttoken = req.headers["x-access-token"];
@@ -87,7 +99,6 @@ router.get("/menu", async (req, res) => {
 
     // const currentMonth = new Date().getMonth() + 1;
 
-    //qtopicIn
     const out = await pool.query(
       "SELECT [Date] ,[Time] ,[Menu] FROM [Test_DB].[dbo].[Menu] where [Date] > DATEADD(DAY , -90 , GETDATE())"
     );
@@ -100,107 +111,123 @@ router.get("/menu", async (req, res) => {
       .send({ auth: false, message: "Failed to authenticate token." });
   }
 });
+
 //add
 router.post("/menu", async (req, res) => {
-  let userCreds = req.body.user;
+  const jwttoken = req.headers["x-access-token"];
+
+  if (!jwttoken)
+    return res
+      .status(401)
+      .send({ auth: false, message: "Authentication required." });
+
+  const TokenArray = jwttoken.split(" ");
+  const token = TokenArray[1];
 
   try {
-    let dbData = await pool
+    const verified = await jwt.verify(token, process.env.ADMIN_KEY);
+
+    const users = jwt.decode(token);
+
+    const data = req.body;
+
+    const getTime = await pool
       .request()
-      .input("user1", sql.Int, userCreds.user)
-      .query(
-        "SELECT [admin] ,[password] ,[name] FROM [admins] where [admin] = @user1"
-      );
+      .input("date", sql.Date, data.date)
+      .input("time", sql.VarChar, data.time)
+      .input("menu", sql.VarChar, data.menu)
+      .query("INSERT INTO [dbo].[Menu] VALUES (@date , @time , @menu)");
 
-    let foundUser = dbData.recordset[0];
-
-    if (foundUser) {
-      let submittedPass = userCreds.password;
-      let storedPass = foundUser.pass;
-
-      // const passwordMatch = await bcrypt.compare(submittedPass, storedPass);
-
-      if (submittedPass === storedPass) {
-        let admin = foundUser.admin;
-        let name = foundUser.name;
-        var token = jwt.sign({ admin }, process.env.ADMIN_KEY);
-
-        res.status(200);
-        res.send({
-          auth: true,
-          token: token,
-          admin: admin,
-          name: name,
-        });
-      } else {
-        res.status(404);
-        res.send("Wrong Password, Type correct password and login again");
-      }
-    } else {
-      // let fakePass = `$2b$$10$ifgfgfgfgfgfgfggfgfgfggggfgfgfga`;
-      // await bcrypt.compare(req.body.password, fakePass);
-
-      res.status(404);
-      res.send("No Such user exists");
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(405);
-    res.send("Internal server error");
+    res.status = 200;
+    res.send({ result: "data updated succesfully" });
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(500)
+      .send({ auth: false, message: "Failed to authenticate token." });
   }
 });
 //update
 router.put("/menu", async (req, res) => {
-  let userCreds = req.body.user;
+  const jwttoken = req.headers["x-access-token"];
+
+  if (!jwttoken)
+    return res
+      .status(401)
+      .send({ auth: false, message: "Authentication required." });
+
+  const TokenArray = jwttoken.split(" ");
+  const token = TokenArray[1];
 
   try {
-    let dbData = await pool
+    const verified = await jwt.verify(token, process.env.ADMIN_KEY);
+
+    const users = jwt.decode(token);
+
+    const data = req.body;
+
+    const getTime = await pool
       .request()
-      .input("user1", sql.Int, userCreds.user)
+      .input("date", sql.Date, data.date)
+      .input("time", sql.VarChar, data.time)
+      .input("menu", sql.VarChar, data.menu)
       .query(
-        "SELECT [admin] ,[password] ,[name] FROM [admins] where [admin] = @user1"
+        "UPDATE [dbo].[Menu] SET [Menu] = @menu WHERE [Date] = @date AND [Time] = @time"
       );
 
-    let foundUser = dbData.recordset[0];
-
-    if (foundUser) {
-      let submittedPass = userCreds.password;
-      let storedPass = foundUser.pass;
-
-      // const passwordMatch = await bcrypt.compare(submittedPass, storedPass);
-
-      if (submittedPass === storedPass) {
-        let admin = foundUser.admin;
-        let name = foundUser.name;
-        var token = jwt.sign({ admin }, process.env.ADMIN_KEY);
-
-        res.status(200);
-        res.send({
-          auth: true,
-          token: token,
-          admin: admin,
-          name: name,
-        });
-      } else {
-        res.status(404);
-        res.send("Wrong Password, Type correct password and login again");
-      }
-    } else {
-      // let fakePass = `$2b$$10$ifgfgfgfgfgfgfggfgfgfggggfgfgfga`;
-      // await bcrypt.compare(req.body.password, fakePass);
-
-      res.status(404);
-      res.send("No Such user exists");
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(405);
-    res.send("Internal server error");
+    res.status = 200;
+    res.send({ result: "data updated succesfully" });
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(500)
+      .send({ auth: false, message: "Failed to authenticate token." });
   }
 });
 //delete
-router.delete("/menu", async (req, res) => {});
+router.delete("/menu", async (req, res) => {
+  const jwttoken = req.headers["x-access-token"];
 
+  if (!jwttoken)
+    return res
+      .status(401)
+      .send({ auth: false, message: "Authentication required." });
+
+  const TokenArray = jwttoken.split(" ");
+  const token = TokenArray[1];
+
+  try {
+    const verified = await jwt.verify(token, process.env.ADMIN_KEY);
+
+    const users = jwt.decode(token);
+
+    const data = req.body;
+
+    const getTime = await pool
+      .request()
+      .input("date", sql.Date, data.date)
+      .input("time", sql.VarChar, data.time)
+      .query(
+        "DELETE FROM [dbo].[Menu] WHERE [Date] = @date AND [Time] = @time"
+      );
+
+    res.status = 200;
+    res.send({ result: "data Deleted succesfully" });
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(500)
+      .send({ auth: false, message: "Failed to authenticate token." });
+  }
+});
+
+// ------------------------------------------------------------------------------------------------------
+//
+//
+//
+//
+
+//--------------------------------------------------------------------------------------------------------
 // ------------------- manage user api-------------------------------
 //read
 router.get("/user", async (req, res) => {
@@ -214,12 +241,9 @@ router.get("/user", async (req, res) => {
   const TokenArray = jwttoken.split(" ");
   const token = TokenArray[1];
 
-  const topic = req.params.topic;
-  const department = req.params.department;
   try {
     const verified = await jwt.verify(token, process.env.ADMIN_KEY);
 
-    //qtopicIn
     const out = await pool.query(
       "SELECT [userid] ,[password] ,[name] ,[dept] FROM [Test_DB].[dbo].[UserDetails]"
     );
@@ -234,153 +258,121 @@ router.get("/user", async (req, res) => {
 });
 //add
 router.post("/user", async (req, res) => {
-  let userCreds = req.body.user;
+  const jwttoken = req.headers["x-access-token"];
+
+  if (!jwttoken)
+    return res
+      .status(401)
+      .send({ auth: false, message: "Authentication required." });
+
+  const TokenArray = jwttoken.split(" ");
+  const token = TokenArray[1];
 
   try {
-    let dbData = await pool
+    const verified = await jwt.verify(token, process.env.ADMIN_KEY);
+
+    const users = jwt.decode(token);
+
+    const data = req.body;
+
+    const getTime = await pool
       .request()
-      .input("user1", sql.Int, userCreds.user)
+      .input("userid", sql.Int, data.userid)
+      .input("password", sql.VarChar, data.password)
+      .input("name", sql.VarChar, data.name)
+      .input("dept", sql.VarChar, data.dept)
       .query(
-        "SELECT [admin] ,[password] ,[name] FROM [admins] where [admin] = @user1"
+        "INSERT INTO [dbo].[UserDetails] VALUES (@userid , @password , @name , @dept)"
       );
 
-    let foundUser = dbData.recordset[0];
-
-    if (foundUser) {
-      let submittedPass = userCreds.password;
-      let storedPass = foundUser.pass;
-
-      // const passwordMatch = await bcrypt.compare(submittedPass, storedPass);
-
-      if (submittedPass === storedPass) {
-        let admin = foundUser.admin;
-        let name = foundUser.name;
-        var token = jwt.sign({ admin }, process.env.ADMIN_KEY);
-
-        res.status(200);
-        res.send({
-          auth: true,
-          token: token,
-          admin: admin,
-          name: name,
-        });
-      } else {
-        res.status(404);
-        res.send("Wrong Password, Type correct password and login again");
-      }
-    } else {
-      // let fakePass = `$2b$$10$ifgfgfgfgfgfgfggfgfgfggggfgfgfga`;
-      // await bcrypt.compare(req.body.password, fakePass);
-
-      res.status(404);
-      res.send("No Such user exists");
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(405);
-    res.send("Internal server error");
+    res.status = 200;
+    res.send({ result: "data updated succesfully" });
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(500)
+      .send({ auth: false, message: "Failed to authenticate token." });
   }
 });
 //update
 router.put("/user", async (req, res) => {
-  let userCreds = req.body.user;
+  const jwttoken = req.headers["x-access-token"];
+
+  if (!jwttoken)
+    return res
+      .status(401)
+      .send({ auth: false, message: "Authentication required." });
+
+  const TokenArray = jwttoken.split(" ");
+  const token = TokenArray[1];
 
   try {
-    let dbData = await pool
+    const verified = await jwt.verify(token, process.env.ADMIN_KEY);
+
+    const users = jwt.decode(token);
+
+    const data = req.body;
+
+    const getTime = await pool
       .request()
-      .input("user1", sql.Int, userCreds.user)
+      .input("uid", sql.Int, data.userid)
+      .input("password", sql.VarChar, data.password)
+      .input("name", sql.VarChar, data.name)
+      .input("dept", sql.VarChar, data.dept)
       .query(
-        "SELECT [admin] ,[password] ,[name] FROM [admins] where [admin] = @user1"
+        "UPDATE [dbo].[UserDetails] SET [password] = @password , [name] = @name , [dept] = @dept WHERE [userid] = @uid"
       );
 
-    let foundUser = dbData.recordset[0];
-
-    if (foundUser) {
-      let submittedPass = userCreds.password;
-      let storedPass = foundUser.pass;
-
-      // const passwordMatch = await bcrypt.compare(submittedPass, storedPass);
-
-      if (submittedPass === storedPass) {
-        let admin = foundUser.admin;
-        let name = foundUser.name;
-        var token = jwt.sign({ admin }, process.env.ADMIN_KEY);
-
-        res.status(200);
-        res.send({
-          auth: true,
-          token: token,
-          admin: admin,
-          name: name,
-        });
-      } else {
-        res.status(404);
-        res.send("Wrong Password, Type correct password and login again");
-      }
-    } else {
-      // let fakePass = `$2b$$10$ifgfgfgfgfgfgfggfgfgfggggfgfgfga`;
-      // await bcrypt.compare(req.body.password, fakePass);
-
-      res.status(404);
-      res.send("No Such user exists");
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(405);
-    res.send("Internal server error");
+    res.status = 200;
+    res.send({ result: "data updated succesfully" });
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(500)
+      .send({ auth: false, message: "Failed to authenticate token." });
   }
 });
 //delete
 router.delete("/user", async (req, res) => {
-  let userCreds = req.body.user;
+  const jwttoken = req.headers["x-access-token"];
+
+  if (!jwttoken)
+    return res
+      .status(401)
+      .send({ auth: false, message: "Authentication required." });
+
+  const TokenArray = jwttoken.split(" ");
+  const token = TokenArray[1];
 
   try {
-    let dbData = await pool
+    const verified = await jwt.verify(token, process.env.ADMIN_KEY);
+
+    const users = jwt.decode(token);
+
+    const data = req.body;
+
+    const getTime = await pool
       .request()
-      .input("user1", sql.Int, userCreds.user)
-      .query(
-        "SELECT [admin] ,[password] ,[name] FROM [admins] where [admin] = @user1"
-      );
+      .input("uid", sql.Int, data.userid)
+      .query("DELETE FROM [dbo].[UserDetails]  WHERE [userid] = @uid");
 
-    let foundUser = dbData.recordset[0];
-
-    if (foundUser) {
-      let submittedPass = userCreds.password;
-      let storedPass = foundUser.pass;
-
-      // const passwordMatch = await bcrypt.compare(submittedPass, storedPass);
-
-      if (submittedPass === storedPass) {
-        let admin = foundUser.admin;
-        let name = foundUser.name;
-        var token = jwt.sign({ admin }, process.env.ADMIN_KEY);
-
-        res.status(200);
-        res.send({
-          auth: true,
-          token: token,
-          admin: admin,
-          name: name,
-        });
-      } else {
-        res.status(404);
-        res.send("Wrong Password, Type correct password and login again");
-      }
-    } else {
-      // let fakePass = `$2b$$10$ifgfgfgfgfgfgfggfgfgfggggfgfgfga`;
-      // await bcrypt.compare(req.body.password, fakePass);
-
-      res.status(404);
-      res.send("No Such user exists");
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(405);
-    res.send("Internal server error");
+    res.status = 200;
+    res.send({ result: "data Deleted succesfully" });
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(500)
+      .send({ auth: false, message: "Failed to authenticate token." });
   }
 });
 
-// ------------------- Daily Expense Record api-------------------------------
+// ------------------------------------------------------------------------------------------------------
+//
+//
+//
+//
+
+// ---------------------------------------- Daily Expense Record api-----------------------------------------
 //read
 router.get("/expense", async (req, res) => {
   const jwttoken = req.headers["x-access-token"];
@@ -396,7 +388,6 @@ router.get("/expense", async (req, res) => {
   try {
     const verified = await jwt.verify(token, process.env.ADMIN_KEY);
 
-    //qtopicIn
     const out = await pool.query(
       "SELECT [Date] ,[Todays_Expense] ,[Expense_Details] ,[Expense_Breakup] FROM [dbo].[Daily_Expense_Record] where [Date] > DATEADD(DAY , -90 , GETDATE())"
     );
@@ -409,6 +400,7 @@ router.get("/expense", async (req, res) => {
       .send({ auth: false, message: "Failed to authenticate token." });
   }
 });
+
 //add
 router.post("/expense", async (req, res) => {
   const jwttoken = req.headers["x-access-token"];
@@ -471,7 +463,7 @@ router.put("/expense", async (req, res) => {
     const getTime = await pool
       .request()
       .input("date", sql.VarChar, data.date)
-      .input("expense", sql.VarChar, data.expense)
+      .input("expense", sql.Int, data.expense)
       .input("breakup", sql.VarChar, data.breakup)
       .input("details", sql.VarChar, data.details)
       .query(
@@ -489,9 +481,47 @@ router.put("/expense", async (req, res) => {
 });
 
 //delete
-router.delete("/expense", async (req, res) => {});
+router.delete("/expense", async (req, res) => {
+  const jwttoken = req.headers["x-access-token"];
 
-// --------------------Dashboard Api--------------------
+  if (!jwttoken)
+    return res
+      .status(401)
+      .send({ auth: false, message: "Authentication required." });
+
+  const TokenArray = jwttoken.split(" ");
+  const token = TokenArray[1];
+
+  try {
+    const verified = await jwt.verify(token, process.env.ADMIN_KEY);
+
+    const users = jwt.decode(token);
+
+    const data = req.body;
+
+    const getTime = await pool
+      .request()
+      .input("date", sql.VarChar, data.date)
+      .query("DELETE FROM [dbo].[Daily_Expense_Record] WHERE [Date] = @date");
+
+    res.status = 200;
+    res.send({ result: "data Deleted succesfully" });
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(500)
+      .send({ auth: false, message: "Failed to authenticate token." });
+  }
+});
+
+// ------------------------------------------------------------------------------------------------------
+//
+//
+//
+//
+
+// ------------------------------------------Dashboard Api---------------------------------------------------
+
 //get only
 //query->
 router.get("/dashboard", async (req, res) => {
@@ -510,7 +540,6 @@ router.get("/dashboard", async (req, res) => {
 
     const users = jwt.decode(token);
 
-    //qtopicIn
     const out = await pool.query("exec Admin_Dashboard");
 
     res.status(200);
@@ -522,7 +551,14 @@ router.get("/dashboard", async (req, res) => {
   }
 });
 
-// --------------------All Meals Api--------------------
+//
+// ------------------------------------------------------------------------------------------------------
+//
+//
+//
+//
+
+// ---------------------------------------------All Meals Api------------------------------------------
 //get only
 router.get("/allmeals", async (req, res) => {
   const jwttoken = req.headers["x-access-token"];
@@ -540,7 +576,6 @@ router.get("/allmeals", async (req, res) => {
 
     const users = jwt.decode(token);
 
-    //qtopicIn
     const out = await pool.query(
       "SELECT * FROM [dbo].[AllMeals_Last3Month] () order by [Date] desc , [UserId]"
     );
@@ -554,153 +589,24 @@ router.get("/allmeals", async (req, res) => {
   }
 });
 
-// ------------------- resolve conflict api-------------------------------
+// ------------------------------------------------------------------------------------------------------
+//
+//
+//
+//
+
+// ------------------- resolve conflict api---------------------------------------------------------------------
 //read
-router.get("/conflict", async (req, res) => {
-  let userCreds = req.body.user;
-
-  try {
-    let dbData = await pool
-      .request()
-      .input("user1", sql.Int, userCreds.user)
-      .query(
-        "SELECT [admin] ,[password] ,[name] FROM [admins] where [admin] = @user1"
-      );
-
-    let foundUser = dbData.recordset[0];
-
-    if (foundUser) {
-      let submittedPass = userCreds.password;
-      let storedPass = foundUser.pass;
-
-      // const passwordMatch = await bcrypt.compare(submittedPass, storedPass);
-
-      if (submittedPass === storedPass) {
-        let admin = foundUser.admin;
-        let name = foundUser.name;
-        var token = jwt.sign({ admin }, process.env.ADMIN_KEY);
-
-        res.status(200);
-        res.send({
-          auth: true,
-          token: token,
-          admin: admin,
-          name: name,
-        });
-      } else {
-        res.status(404);
-        res.send("Wrong Password, Type correct password and login again");
-      }
-    } else {
-      // let fakePass = `$2b$$10$ifgfgfgfgfgfgfggfgfgfggggfgfgfga`;
-      // await bcrypt.compare(req.body.password, fakePass);
-
-      res.status(404);
-      res.send("No Such user exists");
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(405);
-    res.send("Internal server error");
-  }
-});
+router.get("/conflict", async (req, res) => {});
 //update
-router.put("/conflict", async (req, res) => {
-  let userCreds = req.body.user;
-
-  try {
-    let dbData = await pool
-      .request()
-      .input("user1", sql.Int, userCreds.user)
-      .query(
-        "SELECT [admin] ,[password] ,[name] FROM [admins] where [admin] = @user1"
-      );
-
-    let foundUser = dbData.recordset[0];
-
-    if (foundUser) {
-      let submittedPass = userCreds.password;
-      let storedPass = foundUser.pass;
-
-      // const passwordMatch = await bcrypt.compare(submittedPass, storedPass);
-
-      if (submittedPass === storedPass) {
-        let admin = foundUser.admin;
-        let name = foundUser.name;
-        var token = jwt.sign({ admin }, process.env.ADMIN_KEY);
-
-        res.status(200);
-        res.send({
-          auth: true,
-          token: token,
-          admin: admin,
-          name: name,
-        });
-      } else {
-        res.status(404);
-        res.send("Wrong Password, Type correct password and login again");
-      }
-    } else {
-      // let fakePass = `$2b$$10$ifgfgfgfgfgfgfggfgfgfggggfgfgfga`;
-      // await bcrypt.compare(req.body.password, fakePass);
-
-      res.status(404);
-      res.send("No Such user exists");
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(405);
-    res.send("Internal server error");
-  }
-});
+router.put("/conflict", async (req, res) => {});
 //delete
-router.delete("/conflict", async (req, res) => {
-  let userCreds = req.body.user;
+router.delete("/conflict", async (req, res) => {});
 
-  try {
-    let dbData = await pool
-      .request()
-      .input("user1", sql.Int, userCreds.user)
-      .query(
-        "SELECT [admin] ,[password] ,[name] FROM [admins] where [admin] = @user1"
-      );
-
-    let foundUser = dbData.recordset[0];
-
-    if (foundUser) {
-      let submittedPass = userCreds.password;
-      let storedPass = foundUser.pass;
-
-      // const passwordMatch = await bcrypt.compare(submittedPass, storedPass);
-
-      if (submittedPass === storedPass) {
-        let admin = foundUser.admin;
-        let name = foundUser.name;
-        var token = jwt.sign({ admin }, process.env.ADMIN_KEY);
-
-        res.status(200);
-        res.send({
-          auth: true,
-          token: token,
-          admin: admin,
-          name: name,
-        });
-      } else {
-        res.status(404);
-        res.send("Wrong Password, Type correct password and login again");
-      }
-    } else {
-      // let fakePass = `$2b$$10$ifgfgfgfgfgfgfggfgfgfggggfgfgfga`;
-      // await bcrypt.compare(req.body.password, fakePass);
-
-      res.status(404);
-      res.send("No Such user exists");
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(405);
-    res.send("Internal server error");
-  }
-});
+// ------------------------------------------------------------------------------------------------------
+//
+//
+//
+//-------------------------------------------------------------------------------------------------------
 
 module.exports = router;
