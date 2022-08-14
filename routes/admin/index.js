@@ -85,13 +85,12 @@ router.get("/menu", async (req, res) => {
   try {
     const verified = await jwt.verify(token, process.env.ADMIN_KEY);
 
-    const currentMonth = new Date().getMonth() + 1;
+    // const currentMonth = new Date().getMonth() + 1;
 
     //qtopicIn
-    const out = await pool
-      .request()
-      .input("curtMonth", sql.In, currentMonth)
-      .query("");
+    const out = await pool.query(
+      "SELECT [Date] ,[Time] ,[Menu] FROM [Test_DB].[dbo].[Menu] where [Date] > DATEADD(DAY , -90 , GETDATE())"
+    );
 
     res.status(200);
     res.send(out.recordset);
@@ -221,7 +220,9 @@ router.get("/user", async (req, res) => {
     const verified = await jwt.verify(token, process.env.ADMIN_KEY);
 
     //qtopicIn
-    const out = await pool.query("");
+    const out = await pool.query(
+      "SELECT [userid] ,[password] ,[name] ,[dept] FROM [Test_DB].[dbo].[UserDetails]"
+    );
 
     res.status(200);
     res.send(out.recordset);
@@ -396,7 +397,9 @@ router.get("/expense", async (req, res) => {
     const verified = await jwt.verify(token, process.env.ADMIN_KEY);
 
     //qtopicIn
-    const out = await pool.query("");
+    const out = await pool.query(
+      "SELECT [Date] ,[Todays_Expense] ,[Expense_Details] ,[Expense_Breakup] FROM [dbo].[Daily_Expense_Record] where [Date] > DATEADD(DAY , -90 , GETDATE())"
+    );
 
     res.status(200);
     res.send(out.recordset);
@@ -407,9 +410,84 @@ router.get("/expense", async (req, res) => {
   }
 });
 //add
-router.post("/expense", async (req, res) => {});
+router.post("/expense", async (req, res) => {
+  const jwttoken = req.headers["x-access-token"];
+
+  if (!jwttoken)
+    return res
+      .status(401)
+      .send({ auth: false, message: "Authentication required." });
+
+  const TokenArray = jwttoken.split(" ");
+  const token = TokenArray[1];
+
+  try {
+    const verified = await jwt.verify(token, process.env.ADMIN_KEY);
+
+    const users = jwt.decode(token);
+
+    const data = req.body;
+    console.log(data);
+
+    const getTime = await pool
+      .request()
+      .input("date", sql.Date, data.date)
+      .input("expense", sql.Int, data.expense)
+      .input("breakup", sql.VarChar, data.breakup)
+      .input("details", sql.VarChar, data.details)
+      .query(
+        "INSERT INTO [dbo].[Daily_Expense_Record] VALUES (@date , @expense , @details , @breakup)"
+      );
+
+    res.status = 200;
+    res.send({ result: "data updated succesfully" });
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(500)
+      .send({ auth: false, message: "Failed to authenticate token." });
+  }
+});
+
 //update
-router.put("/expense", async (req, res) => {});
+router.put("/expense", async (req, res) => {
+  const jwttoken = req.headers["x-access-token"];
+
+  if (!jwttoken)
+    return res
+      .status(401)
+      .send({ auth: false, message: "Authentication required." });
+
+  const TokenArray = jwttoken.split(" ");
+  const token = TokenArray[1];
+
+  try {
+    const verified = await jwt.verify(token, process.env.ADMIN_KEY);
+
+    const users = jwt.decode(token);
+
+    const data = req.body;
+
+    const getTime = await pool
+      .request()
+      .input("date", sql.VarChar, data.date)
+      .input("expense", sql.VarChar, data.expense)
+      .input("breakup", sql.VarChar, data.breakup)
+      .input("details", sql.VarChar, data.details)
+      .query(
+        "UPDATE [dbo].[Daily_Expense_Record] SET [Todays_Expense] = @expense ,[Expense_Details] = @details , [Expense_Breakup] = @breakup WHERE [Date] = @date"
+      );
+
+    res.status = 200;
+    res.send({ result: "data updated succesfully" });
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(500)
+      .send({ auth: false, message: "Failed to authenticate token." });
+  }
+});
+
 //delete
 router.delete("/expense", async (req, res) => {});
 
@@ -457,19 +535,15 @@ router.get("/allmeals", async (req, res) => {
   const TokenArray = jwttoken.split(" ");
   const token = TokenArray[1];
 
-  const topic = req.params.topic;
-  const department = req.params.department;
   try {
     const verified = await jwt.verify(token, process.env.ADMIN_KEY);
 
     const users = jwt.decode(token);
 
     //qtopicIn
-    const out = await pool
-      .request()
-      .input("qtopicIn", sql.VarChar, topic)
-      .input("deptIn", sql.VarChar, department)
-      .query("");
+    const out = await pool.query(
+      "SELECT * FROM [dbo].[AllMeals_Last3Month] () order by [Date] desc , [UserId]"
+    );
 
     res.status(200);
     res.send(out.recordset);
