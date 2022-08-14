@@ -35,7 +35,7 @@ router.post("/login", async (req, res) => {
 
     if (foundUser) {
       let submittedPass = userCreds.password;
-      let storedPass = foundUser.pass;
+      let storedPass = foundUser.password;
 
       // const passwordMatch = await bcrypt.compare(submittedPass, storedPass);
 
@@ -427,18 +427,16 @@ router.get("/dashboard", async (req, res) => {
   const TokenArray = jwttoken.split(" ");
   const token = TokenArray[1];
 
-  const topic = req.params.topic;
-  const department = req.params.department;
   try {
     const verified = await jwt.verify(token, process.env.ADMIN_KEY);
 
     const users = jwt.decode(token);
 
     //qtopicIn
-    const out = await pool.query("");
+    const out = await pool.query("exec Admin_Dashboard");
 
     res.status(200);
-    res.send(out.recordset);
+    res.send(out.recordsets);
   } catch {
     return res
       .status(500)
