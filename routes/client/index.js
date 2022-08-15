@@ -46,7 +46,7 @@ router.post("/login", async (req, res) => {
           name: name,
         });
       } else {
-        res.status(404);
+        res.status(405);
         res.send("Wrong Password, Type correct password and login again");
       }
     } else {

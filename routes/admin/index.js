@@ -27,7 +27,7 @@ router.get("/test", async (req, res) => {
 
 //----------------------------------------------admin login----------------------------------------------
 router.post("/login", async (req, res) => {
-  let userCreds = req.body.user;
+  let userCreds = req.body;
 
   try {
     let dbData = await pool
@@ -39,6 +39,7 @@ router.post("/login", async (req, res) => {
 
     let foundUser = dbData.recordset[0];
 
+    console.log(foundUser);
     if (foundUser) {
       let submittedPass = userCreds.password;
       let storedPass = foundUser.password;
