@@ -135,9 +135,9 @@ router.post("/menu", async (req, res) => {
     const getTime = await pool
       .request()
       .input("date", sql.Date, data.date)
-      .input("time", sql.VarChar, data.time)
+      .input("Time", sql.VarChar, data.time)
       .input("menu", sql.VarChar, data.menu)
-      .query("INSERT INTO [dbo].[Menu] VALUES (@date , @time , @menu)");
+      .query("exec [dbo].[updateMenu]  @date, @Time , @menu");
 
     res.status = 200;
     res.send({ result: "data updated succesfully" });
