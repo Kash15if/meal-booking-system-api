@@ -282,9 +282,7 @@ router.post("/user", async (req, res) => {
       .input("password", sql.VarChar, data.password)
       .input("name", sql.VarChar, data.name)
       .input("dept", sql.VarChar, data.dept)
-      .query(
-        "INSERT INTO [dbo].[UserDetails] VALUES (@userid , @password , @name , @dept)"
-      );
+      .query("EXEC [dbo].[updateUser]  @userid , @password , @name , @dept ");
 
     res.status = 200;
     res.send({ result: "data updated succesfully" });
