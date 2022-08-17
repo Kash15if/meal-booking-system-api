@@ -24,9 +24,6 @@ router.post("/login", async (req, res) => {
 
     let foundUser = dbData.recordset[0];
 
-    console.log(foundUser);
-    console.log(userCreds);
-
     if (foundUser) {
       let submittedPass = userCreds.password;
       let storedPass = foundUser.password;
@@ -86,8 +83,6 @@ router.get("/meal", async (req, res) => {
   try {
     const payLoad = await jwt.verify(token, process.env.USER_KEY);
 
-    console.log(payLoad);
-
     // const currentMonth = new Date().getMonth() + 1;
 
     const out = await pool
@@ -96,7 +91,6 @@ router.get("/meal", async (req, res) => {
       .input("Time", sql.VarChar, "Lunch")
       .query("EXEC [dbo].[getNextDayBooking] @uid , @Time");
 
-    console.log(out.recordset);
     res.status(200);
     res.send(out.recordset);
   } catch (err) {
@@ -128,7 +122,12 @@ router.put("/meal", async (req, res) => {
     let queryString = "";
 
     data.forEach((oneRow) => {
-      queryString += `EXEC [dbo].[updateMealBooking] ${oneRow.UserId} ,'${oneRow.Date}', ${oneRow.Time}, ${oneRow.Menu} , ${oneRow.Meal_On} , ${oneRow.Extra_Meal};`;
+      let formatDate = new Date(oneRow.Date);
+      queryString += `EXEC [dbo].[updateMealBooking] ${oneRow.UserId} ,'${
+        formatDate.toISOString().split("T")[0]
+      }', '${oneRow.Time}', '${oneRow.Menu} ', ${oneRow.Meal_On} , ${
+        oneRow.Extra_Meal
+      };`;
     });
 
     const getTime = await pool.query(queryString);
@@ -136,7 +135,6 @@ router.put("/meal", async (req, res) => {
     res.status = 200;
     res.send({ result: "data updated succesfully" });
   } catch (err) {
-    console.log(err);
     return res
       .status(500)
       .send({ auth: false, message: "Failed to authenticate token." });
@@ -164,8 +162,6 @@ router.get("/dashboard", async (req, res) => {
 
   try {
     const payLoad = await jwt.verify(token, process.env.USER_KEY);
-
-    console.log(payLoad);
 
     // const currentMonth = new Date().getMonth() + 1;
 
@@ -205,8 +201,6 @@ router.get("/mymeals", async (req, res) => {
 
   try {
     const payLoad = await jwt.verify(token, process.env.USER_KEY);
-
-    console.log(payLoad);
 
     // const currentMonth = new Date().getMonth() + 1;
 
