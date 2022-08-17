@@ -390,7 +390,7 @@ router.get("/expense", async (req, res) => {
     const verified = await jwt.verify(token, process.env.ADMIN_KEY);
 
     const out = await pool.query(
-      "SELECT [Date] ,[Todays_Expense] ,[Expense_Details] ,[Expense_Breakup] FROM [dbo].[Daily_Expense_Record] where [Date] > DATEADD(DAY , -90 , GETDATE())"
+      "SELECT [Date] as date,[Todays_Expense] expense,[Expense_Details] breakup,[Expense_Breakup] as details FROM [dbo].[Daily_Expense_Record] where [Date] > DATEADD(DAY , -90 , GETDATE())"
     );
 
     res.status(200);
