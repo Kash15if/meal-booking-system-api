@@ -426,10 +426,10 @@ router.post("/expense", async (req, res) => {
       .request()
       .input("date", sql.Date, data.date)
       .input("expense", sql.Int, data.expense)
-      .input("breakup", sql.VarChar, data.breakup)
       .input("details", sql.VarChar, data.details)
+      .input("breakup", sql.VarChar, data.breakup)
       .query(
-        "INSERT INTO [dbo].[Daily_Expense_Record] VALUES (@date , @expense , @details , @breakup)"
+        "exec [dbo].[updateExpense]  @date , @expense , @details , @breakup"
       );
 
     res.status = 200;
