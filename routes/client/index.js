@@ -68,9 +68,90 @@ router.post("/login", async (req, res) => {
 
 // ---------------------------------------------- book meal api------------------------------------------
 //update
+//old code just for lunch, customized below code is for both lunch and evening snacks
+// router.get("/meal", async (req, res) => {
+//   const jwttoken = req.headers["x-access-token"];
 
-router.get("/meal", async (req, res) => {
+//   if (!jwttoken)
+//     return res
+//       .status(401)
+//       .send({ auth: false, message: "Authentication required." });
+
+//   const TokenArray = jwttoken.split(" ");
+//   const token = TokenArray[1];
+
+//   try {
+//     const payLoad = await jwt.verify(token, process.env.USER_KEY);
+
+//     // const currentMonth = new Date().getMonth() + 1;
+
+//     const out = await pool
+//       .request()
+//       .input("uid", sql.Int, payLoad.admin)
+//       .input("Time", sql.VarChar, "Lunch")
+//       .query("EXEC [dbo].[getNextDayBooking] @uid , @Time");
+
+//     res.status(200);
+//     res.send(out.recordset);
+//   } catch (err) {
+//     console.log(err);
+//     return res
+//       .status(500)
+//       .send({ auth: false, message: "Failed to authenticate token." });
+//   }
+// });
+
+// router.put("/meal", async (req, res) => {
+//   const jwttoken = req.headers["x-access-token"];
+
+//   if (!jwttoken)
+//     return res
+//       .status(401)
+//       .send({ auth: false, message: "Authentication required." });
+
+//   const TokenArray = jwttoken.split(" ");
+//   const token = TokenArray[1];
+
+//   try {
+//     const verified = await jwt.verify(token, process.env.USER_KEY);
+
+//     const users = jwt.decode(token);
+
+//     const data = req.body;
+
+//     let queryString = "";
+
+//     data.forEach((oneRow) => {
+//       let formatDate = new Date(oneRow.Date);
+//       queryString += `EXEC [dbo].[updateMealBooking] ${oneRow.UserId} ,'${
+//         formatDate.toISOString().split("T")[0]
+//       }', '${oneRow.Time}', '${oneRow.Menu} ', ${oneRow.Meal_On} , ${
+//         oneRow.Extra_Meal
+//       };`;
+//     });
+
+//     const getTime = await pool.query(queryString);
+
+//     res.status = 200;
+//     res.send({ result: "data updated succesfully" });
+//   } catch (err) {
+//     return res
+//       .status(500)
+//       .send({ auth: false, message: "Failed to authenticate token." });
+//   }
+// });
+
+// ------------------------------------------------------------------------------------------------------
+//
+//
+//
+
+// ---------------------------------------------- snacks meal api------------------------------------------
+//update
+
+router.get("/meals", async (req, res) => {
   const jwttoken = req.headers["x-access-token"];
+  const time = req.headers["time"];
 
   if (!jwttoken)
     return res
@@ -88,7 +169,7 @@ router.get("/meal", async (req, res) => {
     const out = await pool
       .request()
       .input("uid", sql.Int, payLoad.admin)
-      .input("Time", sql.VarChar, "Lunch")
+      .input("Time", sql.VarChar, time)
       .query("EXEC [dbo].[getNextDayBooking] @uid , @Time");
 
     res.status(200);
@@ -101,8 +182,9 @@ router.get("/meal", async (req, res) => {
   }
 });
 
-router.put("/meal", async (req, res) => {
+router.put("/meals", async (req, res) => {
   const jwttoken = req.headers["x-access-token"];
+  const time = req.headers["time"];
 
   if (!jwttoken)
     return res
@@ -125,7 +207,7 @@ router.put("/meal", async (req, res) => {
       let formatDate = new Date(oneRow.Date);
       queryString += `EXEC [dbo].[updateMealBooking] ${oneRow.UserId} ,'${
         formatDate.toISOString().split("T")[0]
-      }', '${oneRow.Time}', '${oneRow.Menu} ', ${oneRow.Meal_On} , ${
+      }', '${time}', '${oneRow.Menu} ', ${oneRow.Meal_On} , ${
         oneRow.Extra_Meal
       };`;
     });
@@ -142,6 +224,7 @@ router.put("/meal", async (req, res) => {
 });
 
 // ------------------------------------------------------------------------------------------------------
+//
 //
 //
 //
