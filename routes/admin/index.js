@@ -606,6 +606,19 @@ router.delete("/conflict", async (req, res) => {});
 //
 //
 //
+
+// ------------------- Action buttons api , to download employee data , excel download and send mails---------------------------------------------------------------------
+//send mails
+router.post("/sendmails", async (req, res) => {});
+//download emp. excel
+router.post("/getemp-excel", async (req, res) => {});
+//download expense summary
+router.post("/getsummary", async (req, res) => {});
+
+// ------------------------------------------------------------------------------------------------------
+//
+//
+
 //-------------------------------------------------------------------------------------------------------
 
 module.exports = router;
