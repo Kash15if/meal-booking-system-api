@@ -376,6 +376,7 @@ router.delete("/user", async (req, res) => {
 router.get("/expense", async (req, res) => {
   const jwttoken = req.headers["x-access-token"];
 
+  console.log(jwttoken);
   if (!jwttoken)
     return res
       .status(401)
@@ -384,9 +385,11 @@ router.get("/expense", async (req, res) => {
   const TokenArray = jwttoken.split(" ");
   const token = TokenArray[1];
 
+  console.log(token);
   try {
     const verified = await jwt.verify(token, process.env.ADMIN_KEY);
 
+    console.log(verified);
     const out = await pool.query(
       "SELECT [Date] as date,[Todays_Expense] expense,[Expense_Details] breakup,[Expense_Breakup] as details FROM [dbo].[Daily_Expense_Record] where [Date] > DATEADD(DAY , -90 , GETDATE())"
     );
@@ -423,11 +426,12 @@ router.post("/expense", async (req, res) => {
     const getTime = await pool
       .request()
       .input("date", sql.Date, data.date)
+      .input("time", "Lunch")
       .input("expense", sql.Int, data.expense)
       .input("details", sql.VarChar, data.details)
       .input("breakup", sql.VarChar, data.breakup)
       .query(
-        "exec [dbo].[updateExpense]  @date , @expense , @details , @breakup"
+        "exec [dbo].[updateExpense]  @date ,@time ,  @expense , @details , @breakup"
       );
 
     res.status = 200;
