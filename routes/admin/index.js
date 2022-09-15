@@ -391,7 +391,7 @@ router.get("/expense", async (req, res) => {
 
     console.log(verified);
     const out = await pool.query(
-      "SELECT [Date] as date,[Todays_Expense] expense,[Expense_Details] breakup,[Expense_Breakup] as details FROM [dbo].[Daily_Expense_Record] where [Date] > DATEADD(DAY , -90 , GETDATE())"
+      "SELECT [Date] as date,Time as time, [Todays_Expense] expense,[Expense_Details] breakup,[Expense_Breakup] as details FROM [dbo].[Daily_Expense_Record] where [Date] > DATEADD(DAY , -90 , GETDATE())"
     );
 
     res.status(200);
@@ -426,7 +426,7 @@ router.post("/expense", async (req, res) => {
     const getTime = await pool
       .request()
       .input("date", sql.Date, data.date)
-      .input("time", "Lunch")
+      .input("time", data.time)
       .input("expense", sql.Int, data.expense)
       .input("details", sql.VarChar, data.details)
       .input("breakup", sql.VarChar, data.breakup)
@@ -466,11 +466,12 @@ router.put("/expense", async (req, res) => {
     const getTime = await pool
       .request()
       .input("date", sql.VarChar, data.date)
+      .input("time", sql.VarChar, data.time)
       .input("expense", sql.Int, data.expense)
       .input("breakup", sql.VarChar, data.breakup)
       .input("details", sql.VarChar, data.details)
       .query(
-        "UPDATE [dbo].[Daily_Expense_Record] SET [Todays_Expense] = @expense ,[Expense_Details] = @details , [Expense_Breakup] = @breakup WHERE [Date] = @date"
+        "UPDATE [dbo].[Daily_Expense_Record] SET [Todays_Expense] = @expense ,[Expense_Details] = @details , [Expense_Breakup] = @breakup WHERE [Date] = @date and Time = @time"
       );
 
     res.status = 200;
