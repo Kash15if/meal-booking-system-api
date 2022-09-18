@@ -689,23 +689,27 @@ router.post("/getemp-excel", async (req, res) => {
 
     const users = jwt.decode(token);
 
-    const out = await pool.query("exec Admin_Dashboard");
+    const { uid, name, month } = req.body;
 
+    const out = await pool.query(
+      "exec DownloadEmployeeData " + uid + " , " + month + " ;"
+    );
+
+    // console.log(out.recordsets);
     let workSheeetColumnDets = [
       [
-        { header: "Id", key: "id", width: 15 },
-        { header: "Date", key: "Date", width: 25 },
-      ],
-      [
-        { header: "Id", key: "id", width: 15 },
-        { header: "Amount", key: "Amount", width: 25 },
+        { header: "Date", key: "Date", width: 20 },
+        { header: "Lunch", key: "Lunch", width: 20 },
+        { header: "Snacks", key: "Snacks", width: 20 },
+        { header: "SnacksCost", key: "SnacksCost", width: 25 },
+        { header: "Total", key: "Total", width: 20 },
       ],
     ];
 
     let workbook = new excel.Workbook();
-    out.forEach(async (singleSheet, index) => {
+    out.recordsets.forEach(async (singleSheet, index) => {
       let worksheet = workbook.addWorksheet("sheet" + (index + 1));
-      console.log(singleSheet);
+      // console.log(singleSheet);
       worksheet.columns = workSheeetColumnDets[index];
       await worksheet.addRows(singleSheet);
     });
@@ -716,13 +720,16 @@ router.post("/getemp-excel", async (req, res) => {
     );
     res.setHeader(
       "Content-Disposition",
-      "attachment; filename=" + "tutorials.xlsx"
+      "attachment; filename=" + "Meals.xlsx"
     );
 
     await workbook.xlsx.write(res);
 
     res.status(200).end();
-  } catch {
+    // res.send("Success");
+  } catch (err) {
+    console.log(err);
+
     return res
       .status(500)
       .send({ auth: false, message: "Failed to authenticate token." });
@@ -746,12 +753,21 @@ router.post("/getsummary", async (req, res) => {
 
     const users = jwt.decode(token);
 
-    const out = await pool.query("exec Admin_Dashboard");
+    const out = await pool.query("exec Download_Expense_Summary");
 
+    console.log(out.recordsets);
     let workSheeetColumnDets = [
       [
-        { header: "Id", key: "id", width: 15 },
         { header: "Date", key: "Date", width: 25 },
+        { header: "Id", key: "id", width: 15 },
+        { header: "Id", key: "id", width: 15 },
+        { header: "Id", key: "id", width: 15 },
+        { header: "Id", key: "id", width: 15 },
+        { header: "Id", key: "id", width: 15 },
+        { header: "Id", key: "id", width: 15 },
+        { header: "Id", key: "id", width: 15 },
+        { header: "Id", key: "id", width: 15 },
+        { header: "Id", key: "id", width: 15 },
       ],
       [
         { header: "Id", key: "id", width: 15 },
@@ -759,26 +775,26 @@ router.post("/getsummary", async (req, res) => {
       ],
     ];
 
-    let workbook = new excel.Workbook();
-    out.forEach(async (singleSheet, index) => {
-      let worksheet = workbook.addWorksheet("sheet" + (index + 1));
-      console.log(singleSheet);
-      worksheet.columns = workSheeetColumnDets[index];
-      await worksheet.addRows(singleSheet);
-    });
+    // let workbook = new excel.Workbook();
+    // out.forEach(async (singleSheet, index) => {
+    //   let worksheet = workbook.addWorksheet("sheet" + (index + 1));
+    //   console.log(singleSheet);
+    //   worksheet.columns = workSheeetColumnDets[index];
+    //   await worksheet.addRows(singleSheet);
+    // });
 
-    res.setHeader(
-      "Content-Type",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    );
-    res.setHeader(
-      "Content-Disposition",
-      "attachment; filename=" + "tutorials.xlsx"
-    );
+    // res.setHeader(
+    //   "Content-Type",
+    //   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    // );
+    // res.setHeader(
+    //   "Content-Disposition",
+    //   "attachment; filename=" + "Meals.xlsx"
+    // );
 
-    await workbook.xlsx.write(res);
+    // await workbook.xlsx.write(res);
 
-    res.status(200).end();
+    // res.status(200).end();
   } catch {
     return res
       .status(500)
