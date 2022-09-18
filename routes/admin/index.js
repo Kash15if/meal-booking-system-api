@@ -755,46 +755,56 @@ router.post("/getsummary", async (req, res) => {
 
     const out = await pool.query("exec Download_Expense_Summary");
 
-    console.log(out.recordsets);
     let workSheeetColumnDets = [
       [
-        { header: "Date", key: "Date", width: 25 },
-        { header: "Id", key: "id", width: 15 },
-        { header: "Id", key: "id", width: 15 },
-        { header: "Id", key: "id", width: 15 },
-        { header: "Id", key: "id", width: 15 },
-        { header: "Id", key: "id", width: 15 },
-        { header: "Id", key: "id", width: 15 },
-        { header: "Id", key: "id", width: 15 },
-        { header: "Id", key: "id", width: 15 },
-        { header: "Id", key: "id", width: 15 },
+        { header: "All_Expense", key: "All_Expense", width: 25 },
+        { header: "Lunch_Expense", key: "Lunch_Expense", width: 25 },
+        { header: "Snacks_Expense", key: "Snacks_Expense", width: 25 },
+        { header: "Total_Meal", key: "Total_Meal", width: 25 },
+        { header: "Lunch_Cost", key: "Lunch_Cost", width: 25 },
+        { header: "ES_Cost", key: "ES_Cost", width: 25 },
+        { header: "Total_Snacks", key: "Total_Snacks", width: 25 },
+        {
+          header: "Last_Month_LunchCharge",
+          key: "Last_Month_LunchCharge",
+          width: 25,
+        },
+        {
+          header: "Last_Month_ESCharge",
+          key: "Last_Month_ESCharge",
+          width: 25,
+        },
+        { header: "Id", key: "id", width: 25 },
       ],
       [
-        { header: "Id", key: "id", width: 15 },
-        { header: "Amount", key: "Amount", width: 25 },
+        { header: "Date", key: "Date", width: 15 },
+        { header: "Lunch", key: "Lunch", width: 25 },
+        { header: "ES", key: "ES", width: 15 },
       ],
     ];
 
-    // let workbook = new excel.Workbook();
-    // out.forEach(async (singleSheet, index) => {
-    //   let worksheet = workbook.addWorksheet("sheet" + (index + 1));
-    //   console.log(singleSheet);
-    //   worksheet.columns = workSheeetColumnDets[index];
-    //   await worksheet.addRows(singleSheet);
-    // });
+    let workbook = new excel.Workbook();
+    out.recordsets.forEach(async (singleSheet, index) => {
+      let worksheet = workbook.addWorksheet(
+        index === 0 ? "Monthly_Summary" : "Daywise_Meals"
+      );
+      console.log(singleSheet);
+      worksheet.columns = workSheeetColumnDets[index];
+      await worksheet.addRows(singleSheet);
+    });
 
-    // res.setHeader(
-    //   "Content-Type",
-    //   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    // );
-    // res.setHeader(
-    //   "Content-Disposition",
-    //   "attachment; filename=" + "Meals.xlsx"
-    // );
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=" + "Meals.xlsx"
+    );
 
-    // await workbook.xlsx.write(res);
+    await workbook.xlsx.write(res);
 
-    // res.status(200).end();
+    res.status(200).end();
   } catch {
     return res
       .status(500)
