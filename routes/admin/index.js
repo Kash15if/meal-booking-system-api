@@ -1,6 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
+const nodeMailer = require("nodemailer");
+const excel = require("exceljs");
+
 const bcrypt = require("bcrypt");
 
 var jwt = require("jsonwebtoken");
@@ -614,11 +617,174 @@ router.delete("/conflict", async (req, res) => {});
 
 // ------------------- Action buttons api , to download employee data , excel download and send mails---------------------------------------------------------------------
 //send mails
-router.post("/sendmails", async (req, res) => {});
+router.post("/sendmails", async (req, res) => {
+  const jwttoken = req.headers["x-access-token"];
+
+  if (!jwttoken)
+    return res
+      .status(401)
+      .send({ auth: false, message: "Authentication required." });
+
+  const TokenArray = jwttoken.split(" ");
+  const token = TokenArray[1];
+
+  try {
+    const verified = await jwt.verify(token, process.env.ADMIN_KEY);
+
+    const users = jwt.decode(token);
+
+    let userList = req.body;
+
+    userList.forEach(async (oneUser) => {
+      const out = await pool.query("exec Admin_Dashboard");
+
+      let transporter = nodeMailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
+        auth: {
+          user: "xxx@xx.com",
+          pass: "xxxx",
+        },
+      });
+      let mailOptions = {
+        from: '"Krunal Lathiya" <xx@gmail.com>', // sender address
+        to: req.body.to, // list of receivers
+        subject: req.body.subject, // Subject line
+        text: req.body.body, // plain text body
+        html: "<b>NodeJS Email Tutorial</b>", // html body
+      };
+
+      await transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return console.log(error);
+        }
+        console.log("Message %s sent: %s", info.messageId, info.response);
+        res.render("index");
+      });
+    });
+
+    res.status(200);
+    res.send("Mail sent to", userList.toString());
+  } catch {
+    return res
+      .status(500)
+      .send({ auth: false, message: "Failed to authenticate token." });
+  }
+});
 //download emp. excel
-router.post("/getemp-excel", async (req, res) => {});
+router.post("/getemp-excel", async (req, res) => {
+  const jwttoken = req.headers["x-access-token"];
+
+  if (!jwttoken)
+    return res
+      .status(401)
+      .send({ auth: false, message: "Authentication required." });
+
+  const TokenArray = jwttoken.split(" ");
+  const token = TokenArray[1];
+
+  try {
+    const verified = await jwt.verify(token, process.env.ADMIN_KEY);
+
+    const users = jwt.decode(token);
+
+    const out = await pool.query("exec Admin_Dashboard");
+
+    let workSheeetColumnDets = [
+      [
+        { header: "Id", key: "id", width: 15 },
+        { header: "Date", key: "Date", width: 25 },
+      ],
+      [
+        { header: "Id", key: "id", width: 15 },
+        { header: "Amount", key: "Amount", width: 25 },
+      ],
+    ];
+
+    let workbook = new excel.Workbook();
+    out.forEach(async (singleSheet, index) => {
+      let worksheet = workbook.addWorksheet("sheet" + (index + 1));
+      console.log(singleSheet);
+      worksheet.columns = workSheeetColumnDets[index];
+      await worksheet.addRows(singleSheet);
+    });
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=" + "tutorials.xlsx"
+    );
+
+    await workbook.xlsx.write(res);
+
+    res.status(200).end();
+  } catch {
+    return res
+      .status(500)
+      .send({ auth: false, message: "Failed to authenticate token." });
+  }
+});
+
 //download expense summary
-router.post("/getsummary", async (req, res) => {});
+router.post("/getsummary", async (req, res) => {
+  const jwttoken = req.headers["x-access-token"];
+
+  if (!jwttoken)
+    return res
+      .status(401)
+      .send({ auth: false, message: "Authentication required." });
+
+  const TokenArray = jwttoken.split(" ");
+  const token = TokenArray[1];
+
+  try {
+    const verified = await jwt.verify(token, process.env.ADMIN_KEY);
+
+    const users = jwt.decode(token);
+
+    const out = await pool.query("exec Admin_Dashboard");
+
+    let workSheeetColumnDets = [
+      [
+        { header: "Id", key: "id", width: 15 },
+        { header: "Date", key: "Date", width: 25 },
+      ],
+      [
+        { header: "Id", key: "id", width: 15 },
+        { header: "Amount", key: "Amount", width: 25 },
+      ],
+    ];
+
+    let workbook = new excel.Workbook();
+    out.forEach(async (singleSheet, index) => {
+      let worksheet = workbook.addWorksheet("sheet" + (index + 1));
+      console.log(singleSheet);
+      worksheet.columns = workSheeetColumnDets[index];
+      await worksheet.addRows(singleSheet);
+    });
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=" + "tutorials.xlsx"
+    );
+
+    await workbook.xlsx.write(res);
+
+    res.status(200).end();
+  } catch {
+    return res
+      .status(500)
+      .send({ auth: false, message: "Failed to authenticate token." });
+  }
+});
 
 // ------------------------------------------------------------------------------------------------------
 //
