@@ -19,7 +19,7 @@ router.post("/login", async (req, res) => {
       .request()
       .input("user1", sql.Int, userCreds.user)
       .query(
-        "SELECT [userid] ,[password] ,[name] ,[dept] FROM [Test_DB].[dbo].[UserDetails] where [userid] = @user1"
+        "SELECT [userid] ,[password] ,[name] ,[dept] FROM [dbo].[UserDetails] where [userid] = @user1"
       );
 
     let foundUser = dbData.recordset[0];
@@ -209,7 +209,7 @@ router.put("/meals", async (req, res) => {
         formatDate.toISOString().split("T")[0]
       }', '${time}', '${oneRow.Menu} ', ${oneRow.Meal_On} , ${
         oneRow.Extra_Meal
-      };`;
+      } , 0;`;
     });
 
     const getTime = await pool.query(queryString);

@@ -104,7 +104,7 @@ router.get("/menu", async (req, res) => {
     // const currentMonth = new Date().getMonth() + 1;
 
     const out = await pool.query(
-      "SELECT [Date] ,[Time] ,[Menu] FROM [Test_DB].[dbo].[Menu] where [Date] > DATEADD(DAY , -90 , GETDATE())"
+      "SELECT [Date] ,[Time] ,[Menu] FROM [dbo].[Menu] where [Date] > DATEADD(DAY , -90 , GETDATE())"
     );
 
     res.status(200);
@@ -249,7 +249,7 @@ router.get("/user", async (req, res) => {
     const verified = await jwt.verify(token, process.env.ADMIN_KEY);
 
     const out = await pool.query(
-      "SELECT [userid] ,[password] ,[name] ,[dept] FROM [Test_DB].[dbo].[UserDetails]"
+      "SELECT [userid] ,[password] ,[name] ,[dept] FROM [dbo].[UserDetails]"
     );
 
     res.status(200);
@@ -509,7 +509,10 @@ router.delete("/expense", async (req, res) => {
     const getTime = await pool
       .request()
       .input("date", sql.VarChar, data.date)
-      .query("DELETE FROM [dbo].[Daily_Expense_Record] WHERE [Date] = @date");
+      .input("time", sql.VarChar, data.time)
+      .query(
+        "DELETE FROM [dbo].[Daily_Expense_Record] WHERE [Date] = @date and [Time] = @time"
+      );
 
     res.status = 200;
     res.send({ result: "data Deleted succesfully" });
@@ -789,12 +792,30 @@ router.post("/getsummary", async (req, res) => {
         { header: "Lunch", key: "Lunch", width: 25 },
         { header: "ES", key: "ES", width: 15 },
       ],
+      [
+        { header: "UserID", key: "userid", width: 15 },
+        { header: "Name", key: "name", width: 25 },
+        { header: "Department", key: "dept", width: 25 },
+        { header: "Snacks", key: "Snacks", width: 15 },
+        { header: "Lunch", key: "Lunch", width: 15 },
+        { header: "LunchCost", key: "LunchCost", width: 15 },
+        { header: "SnacksCost", key: "SnacksCost", width: 15 },
+        { header: "SnacksAmount", key: "SnacksAmount", width: 15 },
+        { header: "LunchAmount", key: "LunchAmount", width: 15 },
+        { header: "Amount", key: "Amount", width: 15 },
+        { header: "Subsidy", key: "Subsidy", width: 15 },
+        { header: "ToBePaid", key: "ToBePaid", width: 15 },
+      ],
     ];
 
     let workbook = new excel.Workbook();
     out.recordsets.forEach(async (singleSheet, index) => {
       let worksheet = workbook.addWorksheet(
-        index === 0 ? "Monthly_Summary" : "Daywise_Meals"
+        index === 0
+          ? "Monthly_Summary"
+          : index === 1
+          ? "Daywise_Meals"
+          : "UsersBill"
       );
       console.log(singleSheet);
       worksheet.columns = workSheeetColumnDets[index];
@@ -824,6 +845,189 @@ router.post("/getsummary", async (req, res) => {
 //
 //
 
-//-------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------
+// ------------------- manage user api-------------------------------
+//read
+router.get("/post-booking", async (req, res) => {
+  const jwttoken = req.headers["x-access-token"];
 
+  if (!jwttoken)
+    return res
+      .status(401)
+      .send({ auth: false, message: "Authentication required." });
+
+  const TokenArray = jwttoken.split(" ");
+  const token = TokenArray[1];
+
+  try {
+    const verified = await jwt.verify(token, process.env.ADMIN_KEY);
+
+    const out = await pool.query(
+      "SELECT * FROM  [MealDB].[dbo].[BookedMeal] where postbook = 1 and MONTH(Date) = MONTH(getDate()) and Date <=   CONVERT(Date , getDate())"
+    );
+
+    res.status(200);
+    res.send(out.recordset);
+  } catch {
+    return res
+      .status(500)
+      .send({ auth: false, message: "Failed to authenticate token." });
+  }
+});
+//add
+router.post("/post-booking", async (req, res) => {
+  const jwttoken = req.headers["x-access-token"];
+
+  if (!jwttoken)
+    return res
+      .status(401)
+      .send({ auth: false, message: "Authentication required." });
+
+  const TokenArray = jwttoken.split(" ");
+  const token = TokenArray[1];
+
+  try {
+    const verified = await jwt.verify(token, process.env.ADMIN_KEY);
+
+    const users = jwt.decode(token);
+
+    const data = req.body;
+
+    const getTime = await pool
+      .request()
+      .input("userid", sql.Int, parseInt(data.id))
+      .input("date", sql.Date, data.date)
+      .input("time", sql.VarChar, data.time)
+      .input("menu", sql.VarChar, "No menu added")
+      .input("mealOn", sql.Int, 1)
+      .input("additional", sql.Int, 0)
+      .input("postbook", sql.Int, 1)
+      .query(
+        "EXEC [dbo].[updateMealBooking_post]  @userid , @date , @time , @menu , @mealOn , @additional,@postbook  "
+      );
+
+    res.status = 200;
+    res.send({ result: "data updated succesfully" });
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(500)
+      .send({ auth: false, message: "Failed to authenticate token." });
+  }
+});
+//update
+router.put("/post-booking", async (req, res) => {
+  const jwttoken = req.headers["x-access-token"];
+
+  if (!jwttoken)
+    return res
+      .status(401)
+      .send({ auth: false, message: "Authentication required." });
+
+  const TokenArray = jwttoken.split(" ");
+  const token = TokenArray[1];
+
+  try {
+    const verified = await jwt.verify(token, process.env.ADMIN_KEY);
+
+    const users = jwt.decode(token);
+
+    const data = req.body;
+
+    const getTime = await pool
+      .request()
+      .input("userid", sql.Int, parseInt(data.id))
+      .input("date", sql.Date, data.date)
+      .input("time", sql.VarChar, data.time)
+      .input("menu", sql.VarChar, "No menu added")
+      .input("mealOn", sql.Int, 1)
+      .input("additional", sql.Int, 0)
+      .input("postbook", sql.Int, 1)
+      .query(
+        "EXEC [dbo].[updateMealBooking_post]  @userid , @date , @time , @menu , @mealOn , @additional, @postbook "
+      );
+
+    res.status = 200;
+    res.send({ result: "data updated succesfully" });
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(500)
+      .send({ auth: false, message: "Failed to authenticate token." });
+  }
+});
+
+//delete
+router.delete("/post-booking", async (req, res) => {
+  const jwttoken = req.headers["x-access-token"];
+
+  if (!jwttoken)
+    return res
+      .status(401)
+      .send({ auth: false, message: "Authentication required." });
+
+  const TokenArray = jwttoken.split(" ");
+  const token = TokenArray[1];
+
+  try {
+    const verified = await jwt.verify(token, process.env.ADMIN_KEY);
+
+    const users = jwt.decode(token);
+
+    const data = req.body;
+
+    const getTime = await pool
+      .request()
+      .input("uid", sql.Int, parseInt(data.id))
+      .input("date", sql.Date, data.date)
+      .input("time", sql.VarChar, data.time)
+      .query(
+        "delete FROM [MealDB].[dbo].[BookedMeal] where [UserId] = @uid and [Date] = @date and [Time] = @time and postbook = 1"
+      );
+
+    res.status = 200;
+    res.send({ result: "data Deleted succesfully" });
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(500)
+      .send({ auth: false, message: "Failed to authenticate token." });
+  }
+});
+
+//-------------------------------------------------------------------------------------------------------
+// -------------get all users---------------------------
+//
+
+router.get("/getusers", async (req, res) => {
+  const jwttoken = req.headers["x-access-token"];
+
+  if (!jwttoken)
+    return res
+      .status(401)
+      .send({ auth: false, message: "Authentication required." });
+
+  const TokenArray = jwttoken.split(" ");
+  const token = TokenArray[1];
+
+  try {
+    const verified = await jwt.verify(token, process.env.ADMIN_KEY);
+
+    // const currentMonth = new Date().getMonth() + 1;
+
+    const out = await pool.query(
+      "SELECT  [userid] as [id] FROM [dbo].[UserDetails] order by userid"
+    );
+
+    res.status(200);
+    console.log(out.recordset);
+    res.send(out.recordset);
+  } catch {
+    return res
+      .status(500)
+      .send({ auth: false, message: "Failed to authenticate token." });
+  }
+});
+
+//-------------------------------------------------------------------------------------------------------
 module.exports = router;
