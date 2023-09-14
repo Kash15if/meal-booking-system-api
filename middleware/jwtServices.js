@@ -24,7 +24,7 @@ const verifyToken = async (req, res, next) => {
 };
 
 const generateToken = (payload) => {
-  var token = jwt.sign({ payload }, process.env.ADMIN_KEY);
+  var token = jwt.sign( payload, process.env.ADMIN_KEY);
   return token;
 };
 
