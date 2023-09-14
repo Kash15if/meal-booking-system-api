@@ -691,7 +691,7 @@ router.post("/getsummary", verifyToken, async (req, res) => {
 router.get("/post-booking", verifyToken, async (req, res) => {
   try {
     const out = await pool.query(
-      "SELECT * FROM  [MealDB].[dbo].[BookedMeal] where postbook = 1 and MONTH(Date) = MONTH(getDate()) and Date <=   CONVERT(Date , getDate())"
+      "SELECT * FROM  [dbo].[BookedMeal] where postbook = 1 and MONTH(Date) = MONTH(getDate()) and Date <=   CONVERT(Date , getDate())"
     );
 
     res.status(200);
@@ -765,7 +765,7 @@ router.delete("/post-booking", verifyToken, async (req, res) => {
       .input("date", sql.Date, data.date)
       .input("time", sql.VarChar, data.time)
       .query(
-        "delete FROM [MealDB].[dbo].[BookedMeal] where [UserId] = @uid and [Date] = @date and [Time] = @time and postbook = 1"
+        "delete FROM [dbo].[BookedMeal] where [UserId] = @uid and [Date] = @date and [Time] = @time and postbook = 1"
       );
 
     res.status = 200;
