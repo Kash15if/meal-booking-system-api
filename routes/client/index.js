@@ -150,7 +150,7 @@ router.get("/meals", verifyToken, async (req, res) => {
     // const currentMonth = new Date().getMonth() + 1;
     const out = await pool
       .request()
-      .input("uid", sql.Int, payLoad.admin)
+      .input("uid", sql.Int, req.payLoad.admin)
       .input("Time", sql.VarChar, time)
       .query("EXEC [dbo].[getNextDayBooking] @uid , @Time");
 
@@ -198,7 +198,7 @@ router.get("/dashboard", verifyToken, async (req, res) => {
     // const currentMonth = new Date().getMonth() + 1;
     const out = await pool
       .request()
-      .input("uid", sql.Int, payLoad.admin)
+      .input("uid", sql.Int, req.payLoad.admin)
       .query("EXEC [dbo].[User_Dashboard] @uid ");
 
     res.status(200);
@@ -223,7 +223,7 @@ router.get("/mymeals", verifyToken, async (req, res) => {
   try {
     const out = await pool
       .request()
-      .input("uid", sql.Int, payLoad.admin)
+      .input("uid", sql.Int, req.payLoad.admin)
       .query(
         "SELECT * FROM [dbo].[AllMeals_Last3Month]() WHERE [UserId] = @uid;"
       );
