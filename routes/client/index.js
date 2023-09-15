@@ -12,7 +12,6 @@ const { verifyToken, generateToken } = require("../../middleware/jwtServices");
 router.post("/login", async (req, res) => {
   let userCreds = req.body;
 
-  console.log(userCreds);
   try {
     let dbData = await pool
       .request()
@@ -169,7 +168,6 @@ router.put("/meals", verifyToken, async (req, res) => {
     const time = req.headers["time"];
     const data = req.body;
 
-    console.log(data);
 
     let queryString = "";
     data.forEach((oneRow) => {

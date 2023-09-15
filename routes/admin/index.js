@@ -11,7 +11,6 @@ const pool = require("../../models/dbCon"); //importing db-pool for query
 const { verifyToken, generateToken } = require("../../middleware/jwtServices");
 
 router.get("/test", async (req, res) => {
-  console.log(verifyToken("dfvfd"), generateToken("sdd"));
   // const out = await pool.query(
   //   "SELECT [Date] ,[Time] ,[Menu] FROM [Menu];SELECT [Date] ,[Time] ,[Menu] FROM [Menu]"
   // );
