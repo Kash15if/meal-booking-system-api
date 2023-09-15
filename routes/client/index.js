@@ -147,7 +147,9 @@ router.post("/login", async (req, res) => {
 
 router.get("/meals", verifyToken, async (req, res) => {
   try {
+    const time = req.headers["time"];
     // const currentMonth = new Date().getMonth() + 1;
+    // console.log(req.payLoad.admin);
     const out = await pool
       .request()
       .input("uid", sql.Int, req.payLoad.admin)
@@ -164,7 +166,11 @@ router.get("/meals", verifyToken, async (req, res) => {
 
 router.put("/meals", verifyToken, async (req, res) => {
   try {
+    const time = req.headers["time"];
     const data = req.body;
+
+    console.log(data);
+
     let queryString = "";
     data.forEach((oneRow) => {
       let formatDate = new Date(oneRow.Date);
@@ -180,6 +186,7 @@ router.put("/meals", verifyToken, async (req, res) => {
     res.status = 200;
     res.send({ result: "data updated succesfully" });
   } catch (err) {
+    console.log(err);
     return res.status(401).send({ auth: false, message: err });
   }
 });

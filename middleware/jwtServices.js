@@ -14,6 +14,7 @@ const verifyToken = async (req, res, next) => {
   try {
     const decoded = await jwt.verify(token, process.env.ADMIN_KEY);
     req.payLoad = decoded;
+    console.log(req.payLoad);
   } catch (err) {
     console.log(err);
     return res
@@ -25,7 +26,7 @@ const verifyToken = async (req, res, next) => {
 };
 
 const generateToken = (payload) => {
-  var token = jwt.sign({ payload }, process.env.ADMIN_KEY);
+  var token = jwt.sign({ ...payload }, process.env.ADMIN_KEY);
   return token;
 };
 
